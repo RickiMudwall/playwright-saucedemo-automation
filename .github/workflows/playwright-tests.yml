@@ -1,0 +1,60 @@
+# Nombre del workflow que se verá en la pestaña Actions de GitHub
+name: Playwright SauceDemo Tests
+
+# Indicamos cuándo se ejecutará este flujo automático
+on:
+  # Se ejecuta cada vez que subimos cambios a la rama main
+  push:
+    branches: [ "main" ]
+
+  # También se ejecuta si más adelante hacemos un Pull Request hacia main
+  pull_request:
+    branches: [ "main" ]
+
+  # Esto permite ejecutarlo manualmente desde GitHub si queremos probarlo a mano
+  workflow_dispatch:
+
+# Definimos los trabajos que GitHub Actions debe ejecutar
+jobs:
+  # Nombre interno del trabajo de pruebas
+  e2e-tests:
+
+    # GitHub ejecutará la prueba en una máquina Linux temporal
+    runs-on: ubuntu-latest
+
+    # Estos son los pasos que seguirá el pipeline
+    steps:
+
+      # Descargamos el código del repositorio dentro de la máquina temporal de GitHub
+      - name: Descargar el código del repositorio
+        uses: actions/checkout@v4
+
+      # Configuramos Python para que el proyecto pueda ejecutar nuestros tests
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      # Instalamos las dependencias que dejamos guardadas en requirements.txt
+      - name: Instalar dependencias del proyecto
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Instalamos Chromium y sus dependencias para que Playwright pueda abrir el navegador en GitHub Actions
+      - name: Instalar navegador Chromium para Playwright
+        run: |
+          python -m playwright install --with-deps chromium
+
+      # Ejecutamos la prueba automatizada, pero sin mostrar navegador porque en GitHub corre en segundo plano
+      - name: Ejecutar prueba automatizada con Playwright
+        run: |
+          pytest tests/test_compra_exitosa_saucedemo.py --browser chromium
+
+      # Guardamos la evidencia generada por la prueba, incluso si la prueba falla
+      - name: Guardar evidencia de screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidencia-screenshots
+          path: evidence/screenshots/
