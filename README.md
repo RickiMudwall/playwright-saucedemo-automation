@@ -63,7 +63,29 @@ pytest tests/test_compra_exitosa_saucedemo.py --headed --browser chromium
 Ejecutar la prueba sin mostrar el navegador:
 
 pytest tests/test_compra_exitosa_saucedemo.py --browser chromium
+
+
+## Ejecución automática con GitHub Actions
+
+Este proyecto incluye un workflow de GitHub Actions para ejecutar la prueba automatizada cada vez que se suben cambios a la rama `main`.
+
+El workflow realiza los siguientes pasos:
+
+1. Descarga el código del repositorio.
+2. Configura Python.
+3. Instala las dependencias del proyecto.
+4. Instala Chromium para Playwright.
+5. Ejecuta la prueba automatizada.
+6. Guarda la evidencia generada como artifact.
+
+El archivo del workflow se encuentra en:
+
+
+.github/workflows/playwright-tests.yml
+
+
 Evidencia generada
+
 
 Al finalizar correctamente la prueba, se genera una captura en:
 
